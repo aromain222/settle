@@ -81,7 +81,7 @@ updated_at    timestamptz default now()
 ```sql
 id        uuid primary key default gen_random_uuid()
 bet_id    uuid references bets(id) not null
-token     text unique not null default nanoid(10)
+token     text unique not null  -- generated app-side as nanoid(10) before insert
 expires_at timestamptz default now() + interval '7 days'
 used_at   timestamptz
 ```
@@ -103,17 +103,21 @@ created_at timestamptz default now()
 create view user_scoreboard as
 select
   u.id,
-  coalesce(sum(b.amount) filter (where b.winner_id = u.id), 0)
-    - coalesce(sum(b.amount) filter (where b.winner_id != u.id
+  coalesce(sum(b.amount) filter (
+    where b.winner_id = u.id and b.status = 'settled'), 0)
+    - coalesce(sum(b.amount) filter (
+        where b.winner_id != u.id and b.status = 'settled'
         and (b.creator_id = u.id or b.opponent_id = u.id)), 0) as net_amount,
-  count(*) filter (where b.winner_id = u.id) as wins,
-  count(*) filter (where b.winner_id != u.id
+  count(*) filter (
+    where b.winner_id = u.id and b.status = 'settled') as wins,
+  count(*) filter (
+    where b.winner_id != u.id and b.status = 'settled'
     and (b.creator_id = u.id or b.opponent_id = u.id)) as losses,
-  count(*) filter (where b.status in ('pending','active','resolving')
+  count(*) filter (
+    where b.status in ('pending','active','resolving')
     and (b.creator_id = u.id or b.opponent_id = u.id)) as pending
 from users u
-left join bets b on b.status = 'settled'
-  and (b.creator_id = u.id or b.opponent_id = u.id)
+left join bets b on (b.creator_id = u.id or b.opponent_id = u.id)
 group by u.id;
 ```
 
@@ -177,9 +181,12 @@ paid
 ### Create a Bet (phone invite)
 1. Tap + → Create Bet sheet
 2. Fill description, optional amount/label, deadline, opponent phone
-3. Submit → Server Action creates bet (status: pending), sends SMS via Supabase Auth invite
+3. Submit → Server Action:
+   - Looks up phone in `users` table
+   - **If existing user:** creates bet with `opponent_id` set, sends push notification
+   - **If new user:** creates bet without `opponent_id`, creates `invite_links` row, calls Supabase Edge Function which sends invite SMS via Twilio with the invite URL
 4. Recipient taps SMS link → lands on `/api/invites/[token]` → redirects to bet accept page
-5. Recipient signs in (phone OTP) → Accept Bet sheet → confirm
+5. Recipient signs in with phone OTP (Supabase Auth) → Accept Bet sheet → confirm → `opponent_id` backfilled
 6. Bet status → `active`, both see it in feed
 
 ### Create a Bet (share link)
