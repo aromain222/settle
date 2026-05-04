@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+  body {
+    @apply bg-black text-white;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+  }
+}
