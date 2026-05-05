@@ -16,25 +16,36 @@ export default function ScoreboardCard({ userId, initial }: ScoreboardProps) {
     const supabase = createClient()
 
     async function refresh() {
-      const { data: fresh } = await supabase
+      const { data: fresh, error } = await supabase
         .from('user_scoreboard')
         .select('*')
         .eq('id', userId)
         .single()
+      if (error) { console.error('scoreboard refresh failed', error); return }
       if (fresh) setData(fresh)
     }
 
-    const channel = supabase
-      .channel(`scoreboard-${userId}`)
+    const ch1 = supabase
+      .channel(`scoreboard-${userId}-creator`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'bets' },
+        { event: '*', schema: 'public', table: 'bets', filter: `creator_id=eq.${userId}` },
+        refresh
+      )
+      .subscribe()
+
+    const ch2 = supabase
+      .channel(`scoreboard-${userId}-opponent`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bets', filter: `opponent_id=eq.${userId}` },
         refresh
       )
       .subscribe()
 
     return () => {
-      supabase.removeChannel(channel)
+      supabase.removeChannel(ch1)
+      supabase.removeChannel(ch2)
     }
   }, [userId])
 

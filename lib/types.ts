@@ -59,7 +59,7 @@ export interface Notification {
 
 export interface Scoreboard {
   id: string
-  net_amount: number
+  net_amount: string | number
   wins: number
   losses: number
   pending: number
