@@ -224,7 +224,7 @@ export async function getUserBets(
 ): Promise<Bet[]> {
   const { data, error } = await supabase
     .from('bets')
-    .select('*, creator:users!creator_id(*), opponent:users!opponent_id(*)')
+    .select('*, creator:users!creator_id(*), opponent:users!opponent_id(*), declarer:users!declarer_id(*)')
     .or(`creator_id.eq.${userId},opponent_id.eq.${userId}`)
     .order('created_at', { ascending: false })
 

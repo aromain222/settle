@@ -21,9 +21,10 @@ export default function ConfirmSheet({
   const [showPay, setShowPay] = useState(false)
 
   const iAmLoser =
-    bet !== null && bet.declared_winner_id !== currentUserId
-  const declarer =
-    bet?.creator_id === currentUserId ? bet?.opponent : bet?.creator
+    bet !== null &&
+    bet.declared_winner_id !== null &&
+    bet.declared_winner_id !== currentUserId
+  const declarer = bet?.declarer
   const stakeDisplay =
     bet?.amount != null
       ? `$${Number(bet.amount).toFixed(0)}`
@@ -73,7 +74,7 @@ export default function ConfirmSheet({
     return (
       <BottomSheet open onClose={handleClose} title="Time to Pay Up 💸">
         <p className="text-zinc-400 text-sm mb-5">
-          {declarer?.display_name} confirmed you lost{' '}
+          {declarer?.display_name} declared you lost{' '}
           <span className="text-white font-semibold">{stakeDisplay}</span>
         </p>
         <div className="space-y-3 mb-5">

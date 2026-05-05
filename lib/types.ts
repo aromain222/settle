@@ -31,6 +31,7 @@ export interface Bet {
   updated_at: string
   creator?: User
   opponent?: User
+  declarer?: User
 }
 
 export interface InviteLink {
