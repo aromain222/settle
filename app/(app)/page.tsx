@@ -11,7 +11,7 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   const [bets, scoreboard] = await Promise.all([
-    getUserBets(supabase, user.id),
+    getUserBets(supabase, user.id).catch(() => [] as import('@/lib/types').Bet[]),
     getScoreboard(supabase, user.id).catch(() => ({
       id: user.id,
       net_amount: 0,
