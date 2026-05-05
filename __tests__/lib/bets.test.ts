@@ -40,7 +40,11 @@ function makeSupa(resolvedValues: any[] = []) {
       return Promise.resolve(val)
     }),
   }
-  return { from: vi.fn().mockReturnValue(chain), _chain: chain }
+  return {
+    from: vi.fn().mockReturnValue(chain),
+    functions: { invoke: vi.fn().mockResolvedValue({ data: null, error: null }) },
+    _chain: chain,
+  }
 }
 
 describe('createBet', () => {

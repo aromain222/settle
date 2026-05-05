@@ -44,6 +44,18 @@ export async function createBet(
   const token = nanoid(10)
   await supabase.from('invite_links').insert({ bet_id: bet.id, token })
 
+  if (!opponentId && input.opponent_phone) {
+    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/invites/${token}`
+    await supabase.functions.invoke('send-invite-sms', {
+      body: {
+        to: input.opponent_phone,
+        invite_url: inviteUrl,
+        creator_name: bet.creator?.display_name ?? 'Someone',
+        description: input.description,
+      },
+    })
+  }
+
   if (opponentId) {
     await supabase.from('notifications').insert({
       user_id: opponentId,
