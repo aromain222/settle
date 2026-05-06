@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getUserBets, getScoreboard } from '@/lib/bets'
-import MainPageClient from './(app)/MainPageClient'
+import MainPageClient from '@/components/MainPageClient'
+import type { Bet } from '@/lib/types'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -11,7 +12,7 @@ export default async function HomePage() {
   if (!user) redirect('/login')
 
   const [bets, scoreboard] = await Promise.all([
-    getUserBets(supabase, user.id).catch(() => [] as import('@/lib/types').Bet[]),
+    getUserBets(supabase, user.id).catch(() => [] as Bet[]),
     getScoreboard(supabase, user.id).catch(() => ({
       id: user.id,
       net_amount: 0,

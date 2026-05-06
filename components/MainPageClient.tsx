@@ -21,7 +21,6 @@ export default function MainPageClient({
 
   return (
     <div className="min-h-dvh bg-black">
-      {/* Header */}
       <div className="flex justify-between items-center px-4 pt-12 pb-3">
         <h1 className="text-2xl font-black text-white tracking-tight">
           Settle
@@ -34,7 +33,6 @@ export default function MainPageClient({
       <ScoreboardCard userId={userId} initial={scoreboard} />
       <BetFeed initialBets={initialBets} userId={userId} />
 
-      {/* FAB */}
       <button
         onClick={() => setCreateOpen(true)}
         aria-label="New bet"
