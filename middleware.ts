@@ -37,9 +37,10 @@ export async function middleware(request: NextRequest) {
     path.startsWith('/_next') ||
     path === '/favicon.ico'
 
-  if (!user && !isPublic) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
+  // Auth disabled for demo — re-enable before launch
+  // if (!user && !isPublic) {
+  //   return NextResponse.redirect(new URL('/login', request.url))
+  // }
 
   return supabaseResponse
 }
