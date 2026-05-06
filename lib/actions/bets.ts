@@ -27,11 +27,15 @@ export async function createBetAction(input: CreateBetInput) {
   return result
 }
 
-export async function acceptBetAction(betId: string, token: string) {
-  const { supabase, userId } = await getAuthenticatedUser()
-  const bet = await acceptBet(supabase, userId, betId, token)
-  revalidatePath('/')
-  return bet
+export async function acceptBetAction(betId: string, token: string): Promise<{ error?: string }> {
+  try {
+    const { supabase, userId } = await getAuthenticatedUser()
+    await acceptBet(supabase, userId, betId, token)
+    revalidatePath('/')
+    return {}
+  } catch (e: any) {
+    return { error: e?.message ?? 'Could not accept bet' }
+  }
 }
 
 export async function declareBetAction(betId: string, iWon: boolean) {

@@ -1,10 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, signUp } from '@/lib/actions/auth'
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') ?? '/'
+
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,7 +28,7 @@ export default function LoginPage() {
       setError(result.error)
       setLoading(false)
     } else {
-      router.push('/')
+      router.push(redirectTo)
       router.refresh()
     }
   }
@@ -87,5 +90,14 @@ export default function LoginPage() {
           : 'Already have an account? Sign in'}
       </button>
     </div>
+  )
+}
+
+import { Suspense } from 'react'
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

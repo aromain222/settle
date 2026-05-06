@@ -13,14 +13,11 @@ export default async function AcceptBetPage({
   const { token } = searchParams
 
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(
-      `/login?redirect=/bets/${id}/accept${token ? `&token=${token}` : ''}`
-    )
+    const returnTo = `/bets/${id}/accept${token ? `?token=${token}` : ''}`
+    redirect(`/login?redirect=${encodeURIComponent(returnTo)}`)
   }
 
   const { data: bet } = await supabase

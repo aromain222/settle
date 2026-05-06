@@ -5,13 +5,7 @@ import { useRouter } from 'next/navigation'
 import { acceptBetAction } from '@/lib/actions/bets'
 import type { Bet } from '@/lib/types'
 
-export default function AcceptBetClient({
-  bet,
-  token,
-}: {
-  bet: Bet
-  token: string
-}) {
+export default function AcceptBetClient({ bet, token }: { bet: Bet; token: string }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -24,20 +18,18 @@ export default function AcceptBetClient({
   async function handleAccept() {
     setLoading(true)
     setError(null)
-    try {
-      await acceptBetAction(bet.id, token)
-      router.push('/')
-    } catch (err: any) {
-      setError(err.message)
+    const result = await acceptBetAction(bet.id, token)
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
+    } else {
+      router.push('/')
     }
   }
 
   return (
     <div className="min-h-dvh bg-black flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-black text-white mb-1 tracking-tight">
-        Settle
-      </h1>
+      <h1 className="text-4xl font-black text-white mb-1 tracking-tight">Settle</h1>
       <p className="text-zinc-500 text-sm mb-8">You've been challenged</p>
 
       <div className="w-full max-w-sm bg-zinc-900 rounded-2xl p-5 mb-6">
