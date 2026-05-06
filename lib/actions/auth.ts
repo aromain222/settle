@@ -3,17 +3,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-export async function signInWithPhone(phone: string) {
+export async function signInWithEmail(email: string) {
   const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithOtp({ phone })
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+    },
+  })
   if (error) throw new Error(error.message)
-}
-
-export async function verifyOtp(phone: string, token: string) {
-  const supabase = await createClient()
-  const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' })
-  if (error) throw new Error(error.message)
-  redirect('/')
 }
 
 export async function signOut() {

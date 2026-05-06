@@ -9,7 +9,8 @@ export type BetStatus =
 
 export interface User {
   id: string
-  phone: string
+  phone: string | null
+  email: string | null
   display_name: string
   avatar_url: string | null
   created_at: string
