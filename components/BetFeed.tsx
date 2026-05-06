@@ -65,12 +65,22 @@ export default function BetFeed({ initialBets, userId }: BetFeedProps) {
       if (data) setBets(data)
     }
 
-    const channel = supabase
-      .channel(`feed-${userId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'bets' }, refresh)
+    // Two filtered channels — one per role — so Realtime reliably delivers
+    // events regardless of which side of the bet the user is on.
+    const chCreator = supabase
+      .channel(`feed-${userId}-creator`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bets', filter: `creator_id=eq.${userId}` }, refresh)
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    const chOpponent = supabase
+      .channel(`feed-${userId}-opponent`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bets', filter: `opponent_id=eq.${userId}` }, refresh)
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(chCreator)
+      supabase.removeChannel(chOpponent)
+    }
   }, [userId])
 
   function handleCardClick(bet: Bet) {
