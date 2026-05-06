@@ -1,30 +1,29 @@
 'use server'
 
-import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-export async function signInWithEmail(
+export async function signUp(
   email: string,
-  redirectTo?: string
+  password: string
 ): Promise<{ error?: string }> {
   try {
     const supabase = await createClient()
+    const { error } = await supabase.auth.signUp({ email, password })
+    if (error) return { error: error.message }
+    return {}
+  } catch (e: any) {
+    return { error: e?.message ?? 'Something went wrong' }
+  }
+}
 
-    if (redirectTo) {
-      ;(await cookies()).set('auth_redirect', redirectTo, {
-        maxAge: 60 * 10, // 10 minutes
-        httpOnly: true,
-        path: '/',
-      })
-    }
-
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`,
-      },
-    })
+export async function signIn(
+  email: string,
+  password: string
+): Promise<{ error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) return { error: error.message }
     return {}
   } catch (e: any) {
