@@ -14,7 +14,6 @@ const EMPTY = {
   amount: '',
   stake_label: '',
   deadline: '',
-  opponent_phone: '',
 }
 
 export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
@@ -46,16 +45,11 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
         amount: form.amount ? Number(form.amount) : null,
         stake_label: form.stake_label || null,
         deadline: new Date(form.deadline).toISOString(),
-        opponent_phone: form.opponent_phone || null,
+        opponent_phone: null,
       })
-      if (!form.opponent_phone) {
-        // share link flow — show the link
-        const link = `${window.location.origin}/api/invites/${result.invite_token}`
-        await navigator.clipboard.writeText(link).catch(() => {})
-        setShareLink(link)
-      } else {
-        handleClose()
-      }
+      const link = `${window.location.origin}/api/invites/${result.invite_token}`
+      await navigator.clipboard.writeText(link).catch(() => {})
+      setShareLink(link)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -138,19 +132,6 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
             />
           </div>
 
-          <div>
-            <label className="text-[10px] uppercase tracking-widest text-zinc-500 mb-1.5 block">
-              Challenge (phone or leave blank for link)
-            </label>
-            <input
-              type="tel"
-              value={form.opponent_phone}
-              onChange={field('opponent_phone')}
-              placeholder="+1 555 000 0000"
-              className="w-full bg-zinc-800 text-white rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
-          </div>
-
           {error && <p className="text-red-400 text-sm">{error}</p>}
 
           <button
@@ -158,11 +139,7 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
             disabled={loading}
             className="w-full bg-green-400 text-black font-bold rounded-xl py-3 text-sm disabled:opacity-50 transition-opacity"
           >
-            {loading
-              ? 'Creating...'
-              : form.opponent_phone
-              ? 'Send Bet'
-              : 'Get Share Link'}
+            {loading ? 'Creating...' : 'Get Share Link'}
           </button>
         </form>
       )}
