@@ -5,6 +5,7 @@ import { Bell, Plus, UserPlus } from 'lucide-react'
 import ScoreboardCard from '@/components/Scoreboard'
 import BetFeed from '@/components/BetFeed'
 import CreateBetSheet from '@/components/CreateBetSheet'
+import FriendsSheet from '@/components/FriendsSheet'
 import type { Bet, Scoreboard } from '@/lib/types'
 
 interface MainPageClientProps {
@@ -15,6 +16,7 @@ interface MainPageClientProps {
 
 export default function MainPageClient({ userId, initialBets, scoreboard }: MainPageClientProps) {
   const [createOpen, setCreateOpen] = useState(false)
+  const [friendsOpen, setFriendsOpen] = useState(false)
 
   return (
     <div className="min-h-dvh bg-black max-w-[480px] mx-auto">
@@ -44,11 +46,11 @@ export default function MainPageClient({ userId, initialBets, scoreboard }: Main
           Start a bet
         </button>
         <button
-          onClick={() => setCreateOpen(true)}
+          onClick={() => setFriendsOpen(true)}
           className="flex-1 bg-zinc-800 text-white font-semibold rounded-2xl py-3 text-sm flex items-center justify-center gap-1.5 active:opacity-80 transition-opacity"
         >
           <UserPlus size={16} />
-          Invite friend
+          Friends
         </button>
       </div>
 
@@ -65,6 +67,7 @@ export default function MainPageClient({ userId, initialBets, scoreboard }: Main
       </button>
 
       <CreateBetSheet open={createOpen} onClose={() => setCreateOpen(false)} />
+      <FriendsSheet open={friendsOpen} onClose={() => setFriendsOpen(false)} />
     </div>
   )
 }
