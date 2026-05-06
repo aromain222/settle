@@ -51,8 +51,9 @@ export default function BetCard({ bet, currentUserId, onClick }: BetCardProps) {
 
   const isDim = ['settled', 'paid', 'cancelled'].includes(bet.status)
   const needsAction =
-    bet.status === 'resolving' &&
-    (!bet.declared_winner_id || bet.declarer_id !== currentUserId)
+    bet.status === 'active' ||
+    (bet.status === 'resolving' &&
+      (!bet.declared_winner_id || bet.declarer_id !== currentUserId))
 
   return (
     <button
@@ -108,7 +109,11 @@ export default function BetCard({ bet, currentUserId, onClick }: BetCardProps) {
         </span>
         {needsAction && (
           <span className="text-[10px] text-red-400 font-medium">
-            {!bet.declared_winner_id ? 'Tap to declare →' : 'Tap to confirm →'}
+            {bet.status === 'active'
+              ? 'Tap to declare →'
+              : !bet.declared_winner_id
+              ? 'Tap to declare →'
+              : 'Tap to confirm →'}
           </span>
         )}
       </div>

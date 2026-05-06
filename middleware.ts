@@ -34,13 +34,13 @@ export async function middleware(request: NextRequest) {
     path.startsWith('/login') ||
     path.startsWith('/api/invites') ||
     path.startsWith('/api/auth') ||
+    path.startsWith('/bets') ||
     path.startsWith('/_next') ||
     path === '/favicon.ico'
 
-  // Auth disabled for demo — re-enable before launch
-  // if (!user && !isPublic) {
-  //   return NextResponse.redirect(new URL('/login', request.url))
-  // }
+  if (!user && !isPublic) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
 
   return supabaseResponse
 }

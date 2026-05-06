@@ -74,11 +74,17 @@ export default function BetFeed({ initialBets, userId }: BetFeedProps) {
   }, [userId])
 
   function handleCardClick(bet: Bet) {
-    if (bet.status !== 'resolving') return
-    if (!bet.declared_winner_id) {
+    if (bet.status === 'active') {
+      // Either party can declare from an active bet
       setResolveBet(bet)
-    } else if (bet.declarer_id !== userId) {
-      setConfirmBet(bet)
+    } else if (bet.status === 'resolving') {
+      if (!bet.declared_winner_id) {
+        setResolveBet(bet)
+      } else if (bet.declarer_id !== userId) {
+        // I'm not the declarer — I need to confirm
+        setConfirmBet(bet)
+      }
+      // If I AM the declarer, do nothing (waiting on the other person)
     }
   }
 

@@ -3,14 +3,20 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
-export async function signInWithEmail(email: string): Promise<{ error?: string }> {
+export async function signInWithEmail(
+  email: string,
+  redirectTo?: string
+): Promise<{ error?: string }> {
   try {
     const supabase = await createClient()
+    const callbackUrl = new URL(
+      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`
+    )
+    if (redirectTo) callbackUrl.searchParams.set('redirect', redirectTo)
+
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-      },
+      options: { emailRedirectTo: callbackUrl.toString() },
     })
     if (error) return { error: error.message }
     return {}

@@ -1,9 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { signInWithEmail } from '@/lib/actions/auth'
 
-export default function LoginPage() {
+function LoginForm() {
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') ?? undefined
+
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
@@ -13,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const result = await signInWithEmail(email)
+    const result = await signInWithEmail(email, redirectTo)
     if (result.error) {
       setError(result.error)
     } else {
@@ -29,7 +33,10 @@ export default function LoginPage() {
         <p className="text-zinc-500 text-sm mb-10">Friendly bets, no drama</p>
         <div className="w-full max-w-sm text-center">
           <p className="text-green-400 font-semibold text-lg mb-2">Check your email</p>
-          <p className="text-zinc-500 text-sm">We sent a magic link to <span className="text-white">{email}</span>. Click it to sign in.</p>
+          <p className="text-zinc-500 text-sm">
+            We sent a magic link to{' '}
+            <span className="text-white">{email}</span>. Click it to sign in.
+          </p>
         </div>
       </div>
     )
@@ -65,5 +72,13 @@ export default function LoginPage() {
         </button>
       </form>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

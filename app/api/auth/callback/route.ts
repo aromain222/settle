@@ -4,8 +4,9 @@ import { createServerClient } from '@supabase/ssr'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
+  const redirectTo = searchParams.get('redirect') ?? '/'
 
-  const response = NextResponse.redirect(new URL('/', request.url))
+  const response = NextResponse.redirect(new URL(redirectTo, request.url))
 
   if (code) {
     const supabase = createServerClient(
