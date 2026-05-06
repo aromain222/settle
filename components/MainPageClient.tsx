@@ -44,6 +44,7 @@ export default function MainPageClient({ userId, initialBets, scoreboard }: Main
           Start a bet
         </button>
         <button
+          onClick={() => setCreateOpen(true)}
           className="flex-1 bg-zinc-800 text-white font-semibold rounded-2xl py-3 text-sm flex items-center justify-center gap-1.5 active:opacity-80 transition-opacity"
         >
           <UserPlus size={16} />

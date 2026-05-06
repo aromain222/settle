@@ -45,11 +45,15 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
     setLoading(true)
     setError(null)
     try {
+      // Default deadline: 7 days from now if not specified
+      const deadlineDate = form.deadline
+        ? new Date(form.deadline)
+        : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
       const result = await createBetAction({
         description: form.description,
         amount: form.amount ? Number(form.amount) : null,
         stake_label: form.stake_label || null,
-        deadline: new Date(form.deadline).toISOString(),
+        deadline: deadlineDate.toISOString(),
         opponent_phone: null,
       })
       const link = `${window.location.origin}/api/invites/${result.invite_token}`
@@ -145,14 +149,13 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
 
           <div>
             <label className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2 block">
-              Deadline
+              Deadline <span className="normal-case text-zinc-600">(optional — defaults to 7 days)</span>
             </label>
             <input
               type="datetime-local"
               value={form.deadline}
               onChange={field('deadline')}
               className="w-full bg-zinc-800 text-white rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
             />
           </div>
 
@@ -166,7 +169,7 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
               <ChevronLeft size={18} />
             </button>
             <button
-              disabled={!form.deadline || loading}
+              disabled={loading}
               onClick={handleCreate}
               className="flex-1 bg-green-400 text-black font-bold rounded-2xl py-3.5 text-sm disabled:opacity-40 transition-opacity"
             >
