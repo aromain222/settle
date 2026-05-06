@@ -4,9 +4,14 @@ import { createServerClient } from '@supabase/ssr'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirectTo = searchParams.get('redirect') ?? '/'
+
+  const redirectCookie = request.cookies.get('auth_redirect')
+  const redirectTo = redirectCookie?.value ?? '/'
 
   const response = NextResponse.redirect(new URL(redirectTo, request.url))
+
+  // Clear the redirect cookie
+  response.cookies.set('auth_redirect', '', { maxAge: 0, path: '/' })
 
   if (code) {
     const supabase = createServerClient(

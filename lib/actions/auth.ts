@@ -1,5 +1,6 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -9,14 +10,20 @@ export async function signInWithEmail(
 ): Promise<{ error?: string }> {
   try {
     const supabase = await createClient()
-    const callbackUrl = new URL(
-      `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`
-    )
-    if (redirectTo) callbackUrl.searchParams.set('redirect', redirectTo)
+
+    if (redirectTo) {
+      ;(await cookies()).set('auth_redirect', redirectTo, {
+        maxAge: 60 * 10, // 10 minutes
+        httpOnly: true,
+        path: '/',
+      })
+    }
 
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: callbackUrl.toString() },
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`,
+      },
     })
     if (error) return { error: error.message }
     return {}
