@@ -13,14 +13,13 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    try {
-      await signInWithEmail(email)
+    const result = await signInWithEmail(email)
+    if (result.error) {
+      setError(result.error)
+    } else {
       setSent(true)
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   if (sent) {
