@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronRight, ChevronLeft, Copy, Check } from 'lucide-react'
+import { ChevronRight, ChevronLeft, Copy, Check, Share2 } from 'lucide-react'
 import BottomSheet from './BottomSheet'
 import { createBetAction } from '@/lib/actions/bets'
 
@@ -65,6 +65,21 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const canNativeShare = typeof navigator !== 'undefined' && !!navigator.share
+
+  async function handleShare() {
+    if (!shareLink) return
+    if (canNativeShare) {
+      await navigator.share({
+        title: "You've been challenged on Settle",
+        text: `"${form.description}" — accept the bet:`,
+        url: shareLink,
+      }).catch(() => {})
+    } else {
+      await copyLink()
     }
   }
 
@@ -181,34 +196,40 @@ export default function CreateBetSheet({ open, onClose }: CreateBetSheetProps) {
 
       {/* Step 2: Share link */}
       {step === 2 && shareLink && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           <div className="text-center py-2">
             <div className="w-16 h-16 rounded-full bg-green-400/10 flex items-center justify-center mx-auto mb-3 text-3xl">
               🎉
             </div>
             <p className="text-white font-bold text-base">Bet created!</p>
-            <p className="text-zinc-500 text-sm mt-1">Share the link with your opponent</p>
+            <p className="text-zinc-500 text-sm mt-1">Send the link to your opponent</p>
           </div>
 
-          <div
-            className="bg-zinc-800 rounded-2xl px-4 py-3 text-xs text-zinc-400 break-all select-all leading-relaxed"
-          >
-            {shareLink}
-          </div>
-
+          {/* Primary: native share sheet (iMessage, WhatsApp, etc.) */}
           <button
-            onClick={copyLink}
-            className={`w-full font-bold rounded-2xl py-3.5 text-sm flex items-center justify-center gap-2 transition-colors ${
-              copied ? 'bg-zinc-700 text-green-400' : 'bg-zinc-800 text-white'
-            }`}
+            onClick={handleShare}
+            className="w-full bg-green-400 text-black font-bold rounded-2xl py-3.5 text-sm flex items-center justify-center gap-2"
           >
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? 'Copied!' : 'Copy link'}
+            <Share2 size={16} strokeWidth={2.5} />
+            {canNativeShare ? 'Send via...' : 'Copy link'}
           </button>
+
+          {/* Secondary: copy fallback */}
+          {canNativeShare && (
+            <button
+              onClick={copyLink}
+              className={`w-full font-semibold rounded-2xl py-3 text-sm flex items-center justify-center gap-2 transition-colors ${
+                copied ? 'bg-zinc-700 text-green-400' : 'bg-zinc-800 text-zinc-400'
+              }`}
+            >
+              {copied ? <Check size={15} /> : <Copy size={15} />}
+              {copied ? 'Copied!' : 'Copy link instead'}
+            </button>
+          )}
 
           <button
             onClick={handleClose}
-            className="w-full bg-green-400 text-black font-bold rounded-2xl py-3.5 text-sm"
+            className="w-full text-zinc-500 text-sm py-2"
           >
             Done
           </button>
